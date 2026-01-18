@@ -8,30 +8,10 @@ import updateAxes from "./updateAxes";
 import updateChartSize from "./updateChartSize";
 import { prepareCustomChartData, createCustomChartRenderer } from "./customChartUtils";
 
-const rangeSliderIcon = {
-  'width': 400,
-  'height': 400,
-  'path': 'M50 180h300a20 20 0 0 1 0 40H50a20 20 0 0 1 0-40z M160 200a40 40 0 1 0 -80 0a40 40 0 1 0 80 0 M320 200a40 40 0 1 0 -80 0a40 40 0 1 0 80 0',
-};
-
+// @ts-expect-error ts-migrate(2339) FIXME: Property 'setPlotConfig' does not exist on type 't... Remove this comment to see the full error message
 Plotly.setPlotConfig({
   modeBarButtonsToRemove: ["sendDataToCloud"],
-  modeBarButtonsToAdd: ["togglespikelines", "v1hovermode",
-    {
-      name: 'toggleRangeslider',
-      title: 'Toggle rangeslider',
-      icon: rangeSliderIcon,
-      click: function(gd: any) {
-        if(gd?.layout?.xaxis) {
-          let newRangeslider: any = {};
-          if (gd.layout.xaxis?.rangeslider) {
-            newRangeslider = null;
-          }
-          (Plotly.relayout as any)(gd, 'xaxis.rangeslider', newRangeslider);
-        }
-      }
-    },
-  ],
+  modeBarButtonsToAdd: ["togglespikelines", "v1hovermode"],
   locale: window.navigator.language,
 });
 

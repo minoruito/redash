@@ -26,9 +26,7 @@ function getHoverInfoPattern(options: any) {
 
 function prepareBarSeries(series: any, options: any, additionalOptions: any) {
   series.type = "bar";
-  if (!options.series.stacking) {
-    series.offsetgroup = toString(additionalOptions.index);
-  }
+  series.offsetgroup = toString(additionalOptions.index);
   if (options.showDataLabels) {
     series.textposition = "inside";
   } else {
@@ -39,17 +37,11 @@ function prepareBarSeries(series: any, options: any, additionalOptions: any) {
 
 function prepareLineSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
-  series.line = {
-    shape: options.lineShape,
-  }
   return series;
 }
 
 function prepareAreaSeries(series: any, options: any) {
   series.mode = "lines" + (options.showDataLabels ? "+text" : "");
-  series.line = {
-    shape: options.lineShape,
-  }
   series.fill = options.series.stacking ? "tonexty" : "tozeroy";
   return series;
 }
@@ -102,10 +94,7 @@ function prepareSeries(series: any, options: any, numSeries: any, additionalOpti
   // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only bubble size;
   // for other types `y` is always number
   const cleanYValue = includes(["bubble", "scatter"], seriesOptions.type)
-    ? (v: any, axixType: any) => {
-        v = normalizeValue(v, axixType);
-        return includes(["scatter"], seriesOptions.type) && options.missingValuesAsZero && isNil(v) ? 0.0 : v;
-      }
+    ? normalizeValue
     : (v: any) => {
         v = cleanNumber(v);
         return options.missingValuesAsZero && isNil(v) ? 0.0 : v;

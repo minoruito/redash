@@ -3,7 +3,7 @@
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
-const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
+const ManifestPlugin = require("webpack-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
@@ -76,6 +76,8 @@ const config = {
     publicPath: staticPath
   },
   node: {
+    fs: "empty",
+    path: "empty"
   },
   resolve: {
     symlinks: false,
@@ -83,14 +85,6 @@ const config = {
     alias: {
       "@": appPath,
       extensions: extensionPath
-    },
-    fallback: {
-      fs: false,
-      url: require.resolve("url/"),
-      stream: require.resolve("stream-browserify"),
-      assert: require.resolve("assert/"),
-      util: require.resolve("util/"),
-      process: require.resolve("process/browser"),
     }
   },
   plugins: [
@@ -115,7 +109,7 @@ const config = {
       new MiniCssExtractPlugin({
         filename: "[name].[chunkhash].css"
       }),
-    new WebpackManifestPlugin({
+    new ManifestPlugin({
       fileName: "asset-manifest.json",
       publicPath: ""
     }),
@@ -128,13 +122,7 @@ const config = {
         { from: "client/app/assets/fonts", to: "fonts/" }
       ],
     }),
-    isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false }),
-    new webpack.ProvidePlugin({
-      // Make a global `process` variable that points to the `process` package,
-      // because the `util` package expects there to be a global variable named `process`.
-      // Thanks to https://stackoverflow.com/a/65018686/14239942
-      process: 'process/browser'
-    })
+    isHotReloadingEnabled && new ReactRefreshWebpackPlugin({ overlay: false })
   ].filter(Boolean),
   optimization: {
     splitChunks: {
@@ -148,13 +136,8 @@ const config = {
       {
         test: /\.js$/,
         enforce: "pre",
+        exclude: /node_modules/,
         use: ["source-map-loader"],
-        resolve: {
-          fullySpecified: false
-        },
-        exclude: [
-          /node_modules\/@plotly\/mapbox-gl/,
-        ],
       },
       {
         test: /\.(t|j)sx?$/,
@@ -251,7 +234,7 @@ const config = {
       }
     ]
   },
-  devtool: isProduction ? "source-map" : "eval-cheap-module-source-map",
+  devtool: isProduction ? "source-map" : "cheap-eval-module-source-map",
   stats: {
     children: false,
     modules: false,

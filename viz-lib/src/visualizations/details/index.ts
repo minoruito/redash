@@ -1,13 +1,15 @@
-import getOptions from "./getOptions";
-import Renderer from "./Renderer";
-import Editor from "./Editor";
+import DetailsRenderer from "./DetailsRenderer";
+
+const DEFAULT_OPTIONS = {};
 
 export default {
   type: "DETAILS",
   name: "Details View",
-  getOptions,
-  Renderer,
-  Editor,
+  getOptions: (options: any) => ({
+    ...DEFAULT_OPTIONS,
+    ...options,
+  }),
+  Renderer: DetailsRenderer,
   defaultColumns: 4,
   defaultRows: 2,
 };

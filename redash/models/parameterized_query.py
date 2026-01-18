@@ -183,6 +183,8 @@ class ParameterizedQuery:
 
     @property
     def is_safe(self):
+        # Only "text" parameters are considered unsafe for embedding.
+        # "text-pattern" parameters are safe because they are validated against a regex pattern.
         text_parameters = [param for param in self.schema if param["type"] == "text"]
         return not any(text_parameters)
 

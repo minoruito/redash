@@ -18,7 +18,6 @@ const DEFAULT_OPTIONS = {
   coefficient: 1,
   piesort: true,
   color_scheme: "Redash",
-  lineShape: "linear",
 
   // showDataLabels: false, // depends on chart type
   numberFormat: "0,0[.]00000",

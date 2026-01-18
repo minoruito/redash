@@ -24,7 +24,6 @@ describe("Cohort", () => {
     cy.login();
     cy.createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.wait(1500); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.getByTestId("ExecuteButton").click();
     });
     cy.getByTestId("NewVisualization").click();
@@ -52,7 +51,9 @@ describe("Cohort", () => {
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId("VisualizationPreview").find("table").should("exist");
+    cy.getByTestId("VisualizationPreview")
+      .find("table")
+      .should("exist");
     cy.percySnapshot("Visualizations - Cohort (simple)", { widths: [viewportWidth] });
 
     cy.clickThrough(`
@@ -63,7 +64,9 @@ describe("Cohort", () => {
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId("VisualizationPreview").find("table").should("exist");
+    cy.getByTestId("VisualizationPreview")
+      .find("table")
+      .should("exist");
     cy.percySnapshot("Visualizations - Cohort (diagonal)", { widths: [viewportWidth] });
   });
 });
