@@ -8,7 +8,7 @@ x-redash-service: &redash-service
   depends_on:
     - postgres
     - redis
-  env_file: /opt/redash/env
+  env_file: ./env
   restart: always
 services:
   server:
@@ -44,9 +44,9 @@ services:
     restart: unless-stopped
   postgres:
     image: pgautoupgrade/pgautoupgrade:latest
-    env_file: /opt/redash/env
+    env_file: ./env
     volumes:
-      - /opt/redash/postgres-data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
   nginx:
     image: redash/nginx:latest
