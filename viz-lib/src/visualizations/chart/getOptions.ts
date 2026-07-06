@@ -1,5 +1,6 @@
 import { merge } from "lodash";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
+import { applyWidgetDefaults } from "./widgetDefaults";
 
 const DEFAULT_OPTIONS = {
   globalSeriesType: "column",
@@ -50,5 +51,5 @@ export default function getOptions(options: any) {
     result.series.stacking = "stack";
   }
 
-  return result;
+  return applyWidgetDefaults(result);
 }

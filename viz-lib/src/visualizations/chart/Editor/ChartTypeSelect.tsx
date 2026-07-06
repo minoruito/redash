@@ -26,6 +26,7 @@ export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
 
     if (visualizationsSettings.allowCustomJSVisualizations) {
       result.push({ type: "custom", name: "Custom", icon: "code" });
+      result.push({ type: "widget", name: "Widget", icon: "cube" });
     }
 
     if (hiddenChartTypes.length > 0) {

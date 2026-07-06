@@ -69,7 +69,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
           dropdownMatchSelectWidth={false}
           value={item.type}
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'never'.
-          hiddenChartTypes={["pie", "heatmap", "bubble", "box"]}
+          hiddenChartTypes={["pie", "heatmap", "bubble", "box", "widget"]}
           onChange={(value: any) => updateSeriesOption(item.key, "type", value)}
         />
       ),

@@ -1,4 +1,4 @@
-import { isArray, map, mapValues, includes, some, each, difference, toNumber } from "lodash";
+import { isArray, map, mapValues, includes, some, each, difference, toNumber, isNil } from "lodash";
 import React, { useMemo } from "react";
 import { Section, Select, Checkbox, InputNumber, ContextHelp, Input } from "@/components/visualizations/editor";
 import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
@@ -7,11 +7,12 @@ import { AllColorPalettes } from "@/visualizations/ColorPalette";
 import ChartTypeSelect from "./ChartTypeSelect";
 import ColumnMappingSelect from "./ColumnMappingSelect";
 import { useDebouncedCallback } from "use-debounce/lib";
+import { DEFAULT_WIDGET_CSS, DEFAULT_WIDGET_HTML, DEFAULT_WIDGET_JS } from "../widgetDefaults";
 
 function getAvailableColumnMappingTypes(options: any) {
   const result = ["x", "y"];
 
-  if (!includes(["custom", "heatmap"], options.globalSeriesType)) {
+  if (!includes(["custom", "widget", "heatmap"], options.globalSeriesType)) {
     result.push("series");
   }
 
@@ -23,7 +24,7 @@ function getAvailableColumnMappingTypes(options: any) {
     result.push("zVal");
   }
 
-  if (!includes(["custom", "bubble", "heatmap"], options.globalSeriesType)) {
+  if (!includes(["custom", "widget", "bubble", "heatmap"], options.globalSeriesType)) {
     result.push("yError");
   }
 
@@ -87,7 +88,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
   ]);
 
   function handleGlobalSeriesTypeChange(globalSeriesType: any) {
-    onOptionsChange({
+    const changes: any = {
       globalSeriesType,
       showDataLabels: globalSeriesType === "pie",
       swappedAxes: false,
@@ -95,7 +96,21 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         ...series,
         type: globalSeriesType,
       })),
-    });
+    };
+
+    if (globalSeriesType === "widget") {
+      if (isNil(options.widgetHtml)) {
+        changes.widgetHtml = DEFAULT_WIDGET_HTML;
+      }
+      if (isNil(options.widgetCss)) {
+        changes.widgetCss = DEFAULT_WIDGET_CSS;
+      }
+      if (isNil(options.widgetJs)) {
+        changes.widgetJs = DEFAULT_WIDGET_JS;
+      }
+    }
+
+    onOptionsChange(changes);
   }
 
   function handleColumnMappingChange(column: any, type: any) {
@@ -238,7 +253,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
-      {!includes(["custom", "heatmap"], options.globalSeriesType) && (
+      {!includes(["custom", "widget", "heatmap"], options.globalSeriesType) && (
         <React.Fragment>
           {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
           <Section>
@@ -301,7 +316,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
-      {!includes(["custom", "heatmap"], options.globalSeriesType) && (
+      {!includes(["custom", "widget", "heatmap"], options.globalSeriesType) && (
         // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select
@@ -368,7 +383,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
         </Section>
       )}
 
-      {!includes(["custom", "heatmap", "bubble"], options.globalSeriesType) && (
+      {!includes(["custom", "widget", "heatmap", "bubble"], options.globalSeriesType) && (
         // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
           <Select

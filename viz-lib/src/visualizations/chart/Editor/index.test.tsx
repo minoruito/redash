@@ -45,4 +45,20 @@ describe("Visualizations -> Chart -> Editor (wrapper)", () => {
     expect(elementExists(el, "Chart.GlobalSeriesType")).toBeTruthy(); // general settings block exists
     expect(elementExists(el, "Chart.Custom.Code")).toBeTruthy(); // custom settings block exists
   });
+
+  test("Renders wrapper for widget charts", () => {
+    const el = mount({ globalSeriesType: "widget" }, { columns: [], rows: [] });
+
+    expect(elementExists(el, "VisualizationEditor.Tabs.General")).toBeTruthy();
+    expect(elementExists(el, "VisualizationEditor.Tabs.XAxis")).toBeFalsy();
+    expect(elementExists(el, "VisualizationEditor.Tabs.YAxis")).toBeFalsy();
+    expect(elementExists(el, "VisualizationEditor.Tabs.Series")).toBeFalsy();
+    expect(elementExists(el, "VisualizationEditor.Tabs.Colors")).toBeFalsy();
+    expect(elementExists(el, "VisualizationEditor.Tabs.DataLabels")).toBeFalsy();
+
+    expect(elementExists(el, "Chart.GlobalSeriesType")).toBeTruthy();
+    expect(elementExists(el, "Chart.Widget.Html")).toBeTruthy();
+    expect(elementExists(el, "Chart.Widget.Css")).toBeTruthy();
+    expect(elementExists(el, "Chart.Widget.Js")).toBeTruthy();
+  });
 });
