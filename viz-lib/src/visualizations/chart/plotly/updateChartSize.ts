@@ -92,7 +92,28 @@ function placeLegendBelowPlot(plotlyElement: any, layout: any) {
         // offset the legend
         // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
         legend.style[transformName] = "translate(0, " + layout.height + "px)";
-        return [pick(layout, ["height"]), null]; // no further updates
+        return [
+          pick(layout, ["height"]),
+          () => {
+            const legendEl = plotlyElement.querySelector(".legend");
+            if (!legendEl) {
+              return null;
+            }
+
+            // After relayout, verify that legend fits within the container.
+            // Axis automargins and rounding may cause a few pixels of overflow.
+            const overflow =
+              legendEl.getBoundingClientRect().bottom - plotlyElement.getBoundingClientRect().bottom;
+            if (overflow > 0) {
+              layout.height = Math.floor(Math.max(layoutHeight / 2, layout.height - Math.ceil(overflow)));
+              // @ts-expect-error ts-migrate(2538) FIXME: Type 'undefined' cannot be used as an index type.
+              legendEl.style[transformName] = "translate(0, " + layout.height + "px)";
+              return [pick(layout, ["height"]), null];
+            }
+
+            return null;
+          },
+        ];
       }
     },
   ];

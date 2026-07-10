@@ -223,7 +223,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   }
 
   return (
-    <div className="tile m-t-10 m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
+    <div className="tile embed__vis" data-test="VisualizationEmbed">
       {!hideHeader && (
         <VisualizationEmbedHeader
           queryName={query.name}
