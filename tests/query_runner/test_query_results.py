@@ -10,14 +10,17 @@ from redash.query_runner.query_results import (
     CreateTableError,
     PermissionError,
     _load_query,
+    _load_query_by_name,
     create_table,
     extract_cached_query_ids,
     extract_query_ids,
+    extract_query_names,
     extract_query_params,
     fix_column_name,
     get_query_results,
     prepare_parameterized_query,
     replace_query_parameters,
+    sanitize_query_table_name,
 )
 from tests import BaseTestCase
 
@@ -38,6 +41,50 @@ class TestExtractQueryIds(TestCase):
     def test_finds_queries_with_whitespace_characters(self):
         query = "SELECT * FROM    query_123 a JOIN\tquery_4566 b ON a.id=b.parent_id JOIN\r\nquery_78 c ON b.id=c.parent_id"
         self.assertEqual([123, 4566, 78], extract_query_ids(query))
+
+
+class TestExtractQueryNames(TestCase):
+    def test_works_with_simple_query(self):
+        query = "SELECT 1"
+        self.assertEqual([], extract_query_names(query))
+
+    def test_ignores_query_ids(self):
+        query = "SELECT * FROM query_123"
+        self.assertEqual([], extract_query_names(query))
+
+    def test_ignores_param_query_tables(self):
+        query = "SELECT * FROM query_123_1c5f1acad40f99b968836273d74baa89"
+        self.assertEqual([], extract_query_names(query))
+
+    def test_finds_queries_by_name(self):
+        query = "SELECT * FROM query_Monthly_Sales"
+        self.assertEqual(["Monthly_Sales"], extract_query_names(query))
+
+    def test_finds_queries_in_joins(self):
+        query = "SELECT * FROM query_Sales JOIN query_Inventory"
+        self.assertEqual(["Sales", "Inventory"], extract_query_names(query))
+
+
+class TestSanitizeQueryTableName(TestCase):
+    def test_replaces_spaces(self):
+        self.assertEqual("Monthly_Sales", sanitize_query_table_name("Monthly Sales"))
+
+
+class TestLoadQueryByName(BaseTestCase):
+    def test_returns_query(self):
+        query = self.factory.create_query(name="Monthly Sales")
+        loaded = _load_query_by_name(self.factory.user, "Monthly_Sales")
+        self.assertEqual(query, loaded)
+
+    def test_raises_exception_for_missing_query(self):
+        with self.assertRaises(PermissionError):
+            _load_query_by_name(self.factory.user, "Missing_Query")
+
+    def test_raises_exception_for_duplicate_names(self):
+        self.factory.create_query(name="Duplicate Name")
+        self.factory.create_query(name="Duplicate Name")
+        with self.assertRaises(PermissionError):
+            _load_query_by_name(self.factory.user, "Duplicate_Name")
 
 
 class TestCreateTable(TestCase):

@@ -15,7 +15,7 @@ from redash.query_runner import (
     guess_type,
     register,
 )
-from redash.utils import json_dumps
+from redash.utils import json_dumps, to_filename
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,25 @@ def extract_query_ids(query):
     return [int(q) for q in queries]
 
 
+def sanitize_query_table_name(name):
+    return to_filename(name)
+
+
+_PARAM_QUERY_TABLE_SUFFIX = re.compile(r"^\d+_[a-f0-9]{32}$", re.IGNORECASE)
+
+
+def extract_query_names(query):
+    references = re.findall(r"(?:join|from)\s+query_(\S+)", query, re.IGNORECASE)
+    names = []
+    for ref in references:
+        if ref.isdigit():
+            continue
+        if _PARAM_QUERY_TABLE_SUFFIX.fullmatch(ref):
+            continue
+        names.append(ref)
+    return names
+
+
 def extract_cached_query_ids(query):
     queries = re.findall(r"(?:join|from)\s+cached_query_(\d+)", query, re.IGNORECASE)
     return [int(q) for q in queries]
@@ -52,6 +71,31 @@ def _load_query(user, query_id):
     # We should merge it so it's consistent.
     if not has_access(query.data_source, user, view_only):
         raise PermissionError("You do not have access to query id {}.".format(query.id))
+
+    return query
+
+
+def _load_query_by_name(user, query_name):
+    queries = models.Query.query.filter(
+        models.Query.org_id == user.org_id,
+        models.Query.is_archived.is_(False),
+    )
+
+    matching = [query for query in queries if sanitize_query_table_name(query.name) == query_name]
+
+    if not matching:
+        raise PermissionError("Query named '{}' not found.".format(query_name))
+
+    if len(matching) > 1:
+        query_ids = ", ".join(str(query.id) for query in matching)
+        raise PermissionError(
+            "Multiple queries match name '{}'. Use query ID instead (ids: {}).".format(query_name, query_ids)
+        )
+
+    query = matching[0]
+
+    if not has_access(query.data_source, user, view_only):
+        raise PermissionError("You do not have access to query '{}'.".format(query_name))
 
     return query
 
@@ -82,7 +126,11 @@ def get_query_results(user, query_id, bring_from_cache, params=None):
     return results
 
 
-def create_tables_from_query_ids(user, connection, query_ids, query_params, cached_query_ids=[]):
+def create_tables_from_query_ids(
+    user, connection, query_ids, query_params, cached_query_ids=[], query_names=None
+):
+    if query_names is None:
+        query_names = []
     for query_id in set(cached_query_ids):
         results = get_query_results(user, query_id, True)
         table_name = "cached_query_{query_id}".format(query_id=query_id)
@@ -99,6 +147,12 @@ def create_tables_from_query_ids(user, connection, query_ids, query_params, cach
     for query_id in set(query_ids):
         results = get_query_results(user, query_id, False)
         table_name = "query_{query_id}".format(query_id=query_id)
+        create_table(connection, table_name, results)
+
+    for query_name in set(query_names):
+        query = _load_query_by_name(user, query_name)
+        results = get_query_results(user, query.id, False)
+        table_name = "query_{query_name}".format(query_name=query_name)
         create_table(connection, table_name, results)
 
 
@@ -169,11 +223,13 @@ class Results(BaseQueryRunner):
         connection = sqlite3.connect(":memory:")
 
         query_ids = extract_query_ids(query)
-
+        query_names = extract_query_names(query)
         query_params = extract_query_params(query)
 
         cached_query_ids = extract_cached_query_ids(query)
-        create_tables_from_query_ids(user, connection, query_ids, query_params, cached_query_ids)
+        create_tables_from_query_ids(
+            user, connection, query_ids, query_params, cached_query_ids, query_names
+        )
 
         cursor = connection.cursor()
 
