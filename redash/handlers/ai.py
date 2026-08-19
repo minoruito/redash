@@ -28,6 +28,11 @@ class MessageRole:
     ASSISTANT = "assistant"
 
 
+class AiApiKind:
+    OPENAI = "openai"
+    OLLAMA = "ollama"
+
+
 SYSTEM_PROMPT = """あなたは指定データソースのスキーマだけを使ってクエリを書くアシスタントです。
 厳守事項:
 - 与えられたスキーマに存在するテーブル名とカラム名だけを使う
@@ -38,13 +43,33 @@ SYSTEM_PROMPT = """あなたは指定データソースのスキーマだけを�
 {"query": "クエリ本文", "message": "日本語の短い説明"}"""
 
 
-def chat_completions_url(api_url):
+def resolve_ai_endpoint(api_url):
     url = (api_url or "").strip().rstrip("/")
+    if url.endswith("/api/chat") or url.endswith("/api"):
+        if not url.endswith("/api/chat"):
+            url = "{}/chat".format(url)
+        return url, AiApiKind.OLLAMA
     if url.endswith("/chat/completions"):
-        return url
+        return url, AiApiKind.OPENAI
     if url.endswith("/v1"):
-        return "{}/chat/completions".format(url)
-    return "{}/v1/chat/completions".format(url)
+        return "{}/chat/completions".format(url), AiApiKind.OPENAI
+    return "{}/v1/chat/completions".format(url), AiApiKind.OPENAI
+
+
+def chat_completions_url(api_url):
+    url, _kind = resolve_ai_endpoint(api_url)
+    return url
+
+
+def assistant_content_from_response(payload):
+    if not isinstance(payload, dict):
+        raise TypeError("payload is not an object")
+    if payload.get("choices"):
+        return payload["choices"][0]["message"]["content"]
+    message = payload.get("message")
+    if isinstance(message, dict) and "content" in message:
+        return message.get("content")
+    raise KeyError("content")
 
 
 def extract_query_payload(content):
@@ -192,17 +217,23 @@ class AiGenerateQueryResource(BaseResource):
                 messages.append({"role": role, "content": content})
         messages.append({"role": MessageRole.USER, "content": prompt})
 
+        endpoint, api_kind = resolve_ai_endpoint(api_url)
         headers = {"Content-Type": "application/json"}
         if api_key:
             headers["Authorization"] = "Bearer {}".format(api_key)
 
+        if api_kind == AiApiKind.OLLAMA:
+            body = {
+                "model": model,
+                "messages": messages,
+                "stream": False,
+                "options": {"temperature": 0.1},
+            }
+        else:
+            body = {"model": model, "messages": messages, "temperature": 0.1}
+
         try:
-            response = requests.post(
-                chat_completions_url(api_url),
-                headers=headers,
-                json={"model": model, "messages": messages, "temperature": 0.1},
-                timeout=90,
-            )
+            response = requests.post(endpoint, headers=headers, json=body, timeout=180)
         except requests.RequestException:
             logger.exception("AI API request failed")
             abort(502, message="AIサービスに接続できませんでした。")
@@ -213,7 +244,7 @@ class AiGenerateQueryResource(BaseResource):
 
         try:
             payload = response.json()
-            content = payload["choices"][0]["message"]["content"]
+            content = assistant_content_from_response(payload)
         except (ValueError, KeyError, IndexError, TypeError):
             abort(502, message="AIサービスの応答を解釈できませんでした。")
 

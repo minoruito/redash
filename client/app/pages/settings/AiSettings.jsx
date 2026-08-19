@@ -25,7 +25,7 @@ function ConnectionSettings({ values, onChange, loading }) {
     <React.Fragment>
       <h3 className="m-t-0">AI接続</h3>
       <p className="text-muted">
-        OpenAI互換の Chat Completions API（OpenAI、Azure OpenAI 互換エンドポイント、Ollama など）に接続します。
+        Ollama は APIキーは空のままで構いません。モデル名は ollama list の名前を入れてください。
       </p>
       <hr />
       <Form.Item label="API URL">
@@ -33,7 +33,7 @@ function ConnectionSettings({ values, onChange, loading }) {
           <Skeleton.Input style={{ width: 400 }} active />
         ) : (
           <Input
-            placeholder="https://api.openai.com/v1"
+            placeholder="http://host:11434/api/chat"
             value={values[AiSettingKey.API_URL]}
             onChange={e => onChange({ [AiSettingKey.API_URL]: e.target.value })}
             data-test="AiApiUrl"
@@ -45,7 +45,7 @@ function ConnectionSettings({ values, onChange, loading }) {
           <Skeleton.Input style={{ width: 400 }} active />
         ) : (
           <Input.Password
-            placeholder="sk-..."
+            placeholder="Ollama は空で可"
             value={values[AiSettingKey.API_KEY]}
             onChange={e => onChange({ [AiSettingKey.API_KEY]: e.target.value })}
             data-test="AiApiKey"
@@ -57,7 +57,7 @@ function ConnectionSettings({ values, onChange, loading }) {
           <Skeleton.Input style={{ width: 400 }} active />
         ) : (
           <Input
-            placeholder="gpt-4o-mini"
+            placeholder="llama3.2"
             value={values[AiSettingKey.MODEL]}
             onChange={e => onChange({ [AiSettingKey.MODEL]: e.target.value })}
             data-test="AiModel"

@@ -67,9 +67,6 @@ export default function AiQueryDrawer({
           ...current,
           { role: AiMessageRole.ASSISTANT, content: message, query: queryText },
         ]);
-        if (queryText) {
-          onApplyQuery(queryText);
-        }
       })
       .catch(error => {
         const errorMessage = getErrorMessage(error);
@@ -77,7 +74,7 @@ export default function AiQueryDrawer({
         setMessages(current => [...current, { role: AiMessageRole.ASSISTANT, content: errorMessage, isError: true }]);
       })
       .finally(() => setIsGenerating(false));
-  }, [prompt, isGenerating, messages, currentQuery, dataSourceId, schema, syntax, onApplyQuery]);
+  }, [prompt, isGenerating, messages, currentQuery, dataSourceId, schema, syntax]);
 
   return (
     <Drawer
@@ -112,9 +109,15 @@ export default function AiQueryDrawer({
               }`}>
               <div className="ai-query-drawer-message-content">{item.content}</div>
               {item.query && (
-                <pre className="ai-query-drawer-query">
-                  {item.query}
-                </pre>
+                <React.Fragment>
+                  <pre className="ai-query-drawer-query">{item.query}</pre>
+                  <Button
+                    className="m-t-5"
+                    data-test="AiQueryApplyButton"
+                    onClick={() => onApplyQuery(item.query)}>
+                    Apply
+                  </Button>
+                </React.Fragment>
               )}
             </div>
           ))}

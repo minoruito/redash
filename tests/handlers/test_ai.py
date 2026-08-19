@@ -1,7 +1,13 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from redash.handlers.ai import chat_completions_url, extract_query_payload, schema_to_prompt_text
+from redash.handlers.ai import (
+    AiApiKind,
+    chat_completions_url,
+    extract_query_payload,
+    resolve_ai_endpoint,
+    schema_to_prompt_text,
+)
 from redash.models import DataSource, db
 from tests import BaseTestCase
 
@@ -16,6 +22,11 @@ class TestChatCompletionsUrl(TestCase):
 
     def test_appends_v1_when_missing(self):
         self.assertEqual(chat_completions_url("http://ollama:11434"), "http://ollama:11434/v1/chat/completions")
+
+    def test_keeps_ollama_native_chat_url(self):
+        url, kind = resolve_ai_endpoint("http://192.168.2.79:11434/api/chat")
+        self.assertEqual(url, "http://192.168.2.79:11434/api/chat")
+        self.assertEqual(kind, AiApiKind.OLLAMA)
 
 
 class TestExtractQueryPayload(TestCase):
