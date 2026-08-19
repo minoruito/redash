@@ -38,7 +38,7 @@
     "yarn": "^1.22.10"
   },
   "author": "Redash Contributors",
-  "license": "BSD-2-Clause",
+  "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/getredash/redash/issues"
   },
