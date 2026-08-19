@@ -154,7 +154,8 @@ class Mysql(BaseSQLQueryRunner):
                col.data_type as data_type,
                col.column_comment as column_comment
         FROM `information_schema`.`columns` col
-        WHERE LOWER(col.table_schema) NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys');
+        WHERE col.table_schema = DATABASE()
+          AND LOWER(col.table_schema) NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys');
         """
 
         results, error = self.run_query(query, None)
@@ -163,10 +164,7 @@ class Mysql(BaseSQLQueryRunner):
             self._handle_run_query_error(error)
 
         for row in results["rows"]:
-            if row["table_schema"] != self.configuration["db"]:
-                table_name = "{}.{}".format(row["table_schema"], row["table_name"])
-            else:
-                table_name = row["table_name"]
+            table_name = row["table_name"]
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
@@ -184,7 +182,8 @@ class Mysql(BaseSQLQueryRunner):
                              col.table_name as table_name,
                              col.table_comment as table_comment
                       FROM `information_schema`.`tables` col
-                      WHERE LOWER(col.table_schema) NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys'); \
+                      WHERE col.table_schema = DATABASE()
+                        AND LOWER(col.table_schema) NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys'); \
                       """
 
         results, error = self.run_query(table_query, None)
@@ -193,10 +192,7 @@ class Mysql(BaseSQLQueryRunner):
             self._handle_run_query_error(error)
 
         for row in results["rows"]:
-            if row["table_schema"] != self.configuration["db"]:
-                table_name = "{}.{}".format(row["table_schema"], row["table_name"])
-            else:
-                table_name = row["table_name"]
+            table_name = row["table_name"]
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}

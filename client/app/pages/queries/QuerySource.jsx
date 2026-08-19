@@ -17,6 +17,7 @@ import notification from "@/services/notification";
 import * as queryFormat from "@/lib/queryFormat";
 
 import QueryPageHeader from "./components/QueryPageHeader";
+import AiQueryDrawer from "./components/AiQueryDrawer";
 import QueryMetadata from "./components/QueryMetadata";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
@@ -158,6 +159,14 @@ function QuerySource(props) {
   }, []);
 
   const [selectedText, setSelectedText] = useState(null);
+  const [isAiQueryOpen, setIsAiQueryOpen] = useState(false);
+
+  const applyAiQuery = useCallback(
+    sqlText => {
+      setQuery(extend(query.clone(), { query: sqlText }));
+    },
+    [query, setQuery]
+  );
 
   const doExecuteQuery = useCallback(
     (skipParametersDirtyFlag = false) => {
@@ -281,6 +290,11 @@ function QuerySource(props) {
                         disabled: !dataSource || !isFormatQueryAvailable,
                         shortcut: isFormatQueryAvailable ? "mod+shift+f" : null,
                         onClick: formatQuery,
+                      }}
+                      aiQueryButtonProps={{
+                        title: "AI Query",
+                        text: <span className="hidden-xs">AI Query</span>,
+                        onClick: () => setIsAiQueryOpen(true),
                       }}
                       saveButtonProps={
                         queryFlags.canEdit && {
@@ -416,6 +430,15 @@ function QuerySource(props) {
           )}
         </div>
       </main>
+      <AiQueryDrawer
+        visible={isAiQueryOpen}
+        currentQuery={query.query}
+        dataSourceId={dataSource ? dataSource.id : null}
+        schema={schema}
+        syntax={querySyntax}
+        onClose={() => setIsAiQueryOpen(false)}
+        onApplyQuery={applyAiQuery}
+      />
     </div>
   );
 }

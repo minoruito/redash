@@ -80,6 +80,7 @@ from redash.handlers.query_snippets import (
     QuerySnippetListResource,
     QuerySnippetResource,
 )
+from redash.handlers.ai import AiGenerateQueryResource
 from redash.handlers.settings import OrganizationSettings
 from redash.handlers.users import (
     UserDisableResource,
@@ -285,3 +286,4 @@ api.add_org_resource(QuerySnippetResource, "/api/query_snippets/<snippet_id>", e
 api.add_org_resource(QuerySnippetListResource, "/api/query_snippets", endpoint="query_snippets")
 
 api.add_org_resource(OrganizationSettings, "/api/settings/organization", endpoint="organization_settings")
+api.add_org_resource(AiGenerateQueryResource, "/api/ai/generate_query", endpoint="ai_generate_query")

@@ -36,6 +36,7 @@ ButtonTooltip.defaultProps = {
 export default function EditorControl({
   addParameterButtonProps,
   formatButtonProps,
+  aiQueryButtonProps,
   saveButtonProps,
   executeButtonProps,
   autocompleteToggleProps,
@@ -76,6 +77,18 @@ export default function EditorControl({
             onClick={formatButtonProps.onClick}>
             <span className="zmdi zmdi-format-indent-increase" />
             {formatButtonProps.text}
+          </Button>
+        </ButtonTooltip>
+      )}
+      {aiQueryButtonProps !== false && (
+        <ButtonTooltip title={aiQueryButtonProps.title}>
+          <Button
+            className="query-editor-controls-button m-r-5"
+            disabled={aiQueryButtonProps.disabled}
+            onClick={aiQueryButtonProps.onClick}
+            data-test="AiQueryButton">
+            <span className="fa fa-comments" />
+            {aiQueryButtonProps.text}
           </Button>
         </ButtonTooltip>
       )}
@@ -146,6 +159,7 @@ const ButtonPropsPropType = PropTypes.oneOfType([
 EditorControl.propTypes = {
   addParameterButtonProps: ButtonPropsPropType,
   formatButtonProps: ButtonPropsPropType,
+  aiQueryButtonProps: ButtonPropsPropType,
   saveButtonProps: ButtonPropsPropType,
   executeButtonProps: ButtonPropsPropType,
   autocompleteToggleProps: PropTypes.oneOfType([
@@ -179,6 +193,7 @@ EditorControl.propTypes = {
 EditorControl.defaultProps = {
   addParameterButtonProps: false,
   formatButtonProps: false,
+  aiQueryButtonProps: false,
   saveButtonProps: false,
   executeButtonProps: false,
   autocompleteToggleProps: false,

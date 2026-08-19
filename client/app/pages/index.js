@@ -29,6 +29,7 @@ import "./queries/VisualizationEmbed";
 import "./query-snippets/QuerySnippetsList";
 
 import "./settings/OrganizationSettings";
+import "./settings/AiSettings";
 
 import "./users/UsersList";
 import "./users/UserProfile";

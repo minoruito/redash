@@ -1,6 +1,8 @@
 .venv
 venv/
 .cache
+# 開発用 Postgres の永続データ（compose.yaml の bind mount）
+/data/
 .coverage.*
 .coveralls.yml
 .idea

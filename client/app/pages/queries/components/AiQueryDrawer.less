@@ -1,0 +1,70 @@
+.ai-query-drawer {
+  .ant-drawer-body {
+    padding: 0;
+    height: calc(100% - 55px);
+  }
+}
+
+.ai-query-drawer-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ai-query-drawer-messages {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 15px;
+}
+
+.ai-query-drawer-empty {
+  color: #767676;
+  line-height: 1.6;
+}
+
+.ai-query-drawer-message {
+  margin-bottom: 12px;
+  max-width: 100%;
+}
+
+.ai-query-drawer-message-user .ai-query-drawer-message-content {
+  margin-left: 24px;
+  background: #e8f1fb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+}
+
+.ai-query-drawer-message-assistant .ai-query-drawer-message-content {
+  margin-right: 24px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+}
+
+.ai-query-drawer-message-error .ai-query-drawer-message-content {
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+.ai-query-drawer-query {
+  margin: 8px 24px 0 0;
+  padding: 8px;
+  background: #1f1f1f;
+  color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.ai-query-drawer-loading {
+  color: #767676;
+}
+
+.ai-query-drawer-input {
+  flex: 0 0 auto;
+  padding: 12px 15px 15px;
+  border-top: 1px solid #e8e8e8;
+}
